@@ -9,7 +9,7 @@ x_test = x_test.reshape(-1, 28*28).astype("float32")/255.0
 
 # Sequential API
 
-model = keras.Sequential(
+modelSeq = keras.Sequential(
     [
         keras.Input(shape=(28*28,)),
         layers.Dense(512, activation='relu'),
@@ -18,12 +18,32 @@ model = keras.Sequential(
     ]
 )
 
-print(model.summary())
-model.compile(
+print(modelSeq.summary())
+modelSeq.compile(
     loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
     optimizer=keras.optimizers.Adam(),
     metrics=["accuracy"],
 )
 
-model.fit(x_train, y_train, batch_size=32, epochs=5, verbose=2)
-model.evaluate(x_test, y_test, batch_size=32, verbose=2)
+modelSeq.fit(x_train, y_train, batch_size=32, epochs=5, verbose=2)
+modelSeq.evaluate(x_test, y_test, batch_size=32, verbose=2)
+
+# Functional API
+
+inputs = keras.Input(shape=(784,))
+
+x = layers.Dense(1024, activation='relu', name='First_layer')(inputs)
+x = layers.Dense(512, activation='relu', name='Second_layer')(x)
+x = layers.Dense(256, activation='relu', name='Third_layer')(x)
+outputs = layers.Dense(10, activation='softmax')(x)
+modelFun = keras.Model(inputs=inputs, outputs=outputs)
+
+print(modelFun.summary())
+modelFun.compile(
+    loss=keras.losses.SparseCategoricalCrossentropy(),
+    optimizer=keras.optimizers.Adam(),
+    metrics=["accuracy"],
+)
+
+modelFun.fit(x_train, y_train, batch_size=32, epochs=5, verbose=2)
+modelFun.evaluate(x_test, y_test, batch_size=32, verbose=2)
